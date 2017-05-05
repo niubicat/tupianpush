@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>图片上传和裁切</title>
+		
+</head>
+<body>
+<div id="demo2">
+	<form action="#" name="updateFiles">
+	<input type="file" id="input">
+	<input type="file" id="inputField" style="display:none;" onchange="updateSize()" multiple>
+	<!-- <input type="file" id="input" onchange="handleFiles(this.files)"> --> 
+	<!-- <a href="#" id="fileSelect">Select some files</a> -->
+	<!-- <input type="button" id="fileSelect" value="添加附件" />  -->
+	<p>
+	<span id="fileNum">0</span>
+	<br />
+	<span id="fileSize">0</span>
+	</p>
+	</form>
+	<ul class="panel-list">
+	    <li class="panel-item"></li>
+	    <li class="panel-item"></li>
+	    <li class="panel-item"></li>
+	    <li class="panel-item"></li>
+	    <li class="panel-item"></li>
+  	</ul>
+
+	<h3>从文件夹中拖拽图片到上面的区域进行预览</h3>
+
+	<style>
+	#demo2 {
+	margin: 20px;
+	}
+	#demo2 li {
+	float: left;
+	margin-left: 40px;
+	}
+	#demo2 img {
+	width: 100px;
+	height: 100px;	
+	}
+
+	#demo2 .panel-list {
+	overflow: hidden;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	}
+	#demo2 .panel-item {
+	float: left;
+	margin-right: 30px;
+	width: 100px;
+	height: 100px;
+	background: #ddd;
+	border: 1px solid #ddd;
+	}
+
+	#demo2 .over {
+	border: 1px dashed #000;
+	-webkit-transform: scale(0.8, 0.8);
+	}
+	</style>
+
+	<script>
+	(function (w) {
+	var doc = w.document;
+
+	var dnd = {
+	  init: function () {
+	    var me = this;
+
+	    var panelList = doc.querySelectorAll('#demo2 .panel-list .panel-item');
+	    console.log(panelList);
+	    panelList.forEach(function(item) {
+	    	item.addEventListener('dragover', function (e) {
+	    // 取消默认行为，不能拖拽一个元素到另一个元素上	
+	      	e.preventDefault();
+	      	item.classList.add('over');
+	    }, false);
+		});
+
+	    panelList.forEach(function(item) {
+	    	item.addEventListener('drop', function (e) {
+	      // 操作系统拖放文件到浏览器需要取消默认行为
+	      // 调用 preventDefault() 来避免浏览器对数据的默认处理（drop 事件的默认行为是以链接形式打开）
+	      e.preventDefault();
+
+	      [].forEach.call(e.dataTransfer.files, function (file) {
+
+	        if (file && file.type.match('image.*')) {
+	          var reader = new FileReader();
+
+	          reader.onload = function (e) {
+
+	          	// 保存base64 图片到网页dom中	
+	            var img = doc.createElement('img');
+	            // base64的图片数据
+	            img.src = e.target.result;
+
+	            item.appendChild(img);
+	            item.classList.remove('over');
+	          };
+
+	          // 从网页dom中读取base64 图片信息
+	          reader.readAsDataURL(file);
+	        
+	        	var	inputField = document.getElementById("inputField");
+	        	inputField.click(); 
+	        }
+	      });
+	    }, false);
+	    });
+	    	
+	  }
+
+	};
+
+	dnd.init();
+	}(window));
+	</script>
+</div> 
+
+</body>
+
+<!-- <script>
+	(function() {
+		// 隐藏默认上传文件输入框，自定义上传文件输入框
+		var fileSelect = document.getElementById("fileSelect");
+		console.log(fileSelect);
+		var	inputField = document.getElementById("inputField");
+			
+		// 自定义上传文件输入框监听事件，触发默认上传框事件
+		fileSelect.addEventListener("click", function(e) {
+		if(inputField) {
+			inputField.click(); 
+		}
+		
+		// 阻止事件冒泡
+		e.preventDefault();
+
+		});
+	})();
+</script> -->
+<script>
+	function updateSize() {
+		// 获取上传文件个数
+		var nBytes = 0,
+			oFiles = document.getElementById("inputField").files,
+			nFiles = oFiles.length;
+
+		// 计算所有文件总的大小
+		for(var nFileId = 0; nFileId < nFiles; nFileId++) {
+			nBytes += oFiles[nFileId].size;
+		}
+
+		// 大小单位转换
+		var sOutput = nBytes + "Bytes";
+		var aMultiples = ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"],
+			nMultiple = 0,
+			nApprox = nBytes / 1024;
+
+		for(; nApprox > 1; nApprox /= 1024, nMultiple++) {
+			sOutput = nApprox.toFixed(3) + "" + aMultiples[nMultiple] + "(" + nBytes + "Bytes" + ")";
+		}
+
+		document.getElementById("fileNum").innerHTML = nFiles;
+		document.getElementById("fileSize").innerHTML = sOutput;
+	}
+</script>
+</html>
+
+
